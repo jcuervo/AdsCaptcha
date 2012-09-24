@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["richard.gonzales@gmail.com"]
   gem.description   = %q{Helpers for AdsCaptcha API}
   gem.summary       = %q{This plugin adds helpers for the AdsCaptcha API}
-  gem.homepage      = ""
+  gem.homepage      = "https://github.com/jcuervo/AdsCaptcha"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

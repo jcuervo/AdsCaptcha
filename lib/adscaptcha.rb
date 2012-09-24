@@ -1,5 +1,7 @@
-require "adscaptcha/version"
 require 'adscaptcha/configuration'
+require 'adscaptcha/verify'
+require 'adscaptcha/client_helper'
+require "adscaptcha/version"
 
 module Adscaptcha
   ADSCAPTCHA_API = 'api.adscaptcha.com'

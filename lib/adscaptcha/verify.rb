@@ -41,6 +41,7 @@ module Adscaptcha
           return true
         end
       rescue Timeout::Error
+        flash[:adscaptcha_error] = "Could not validate captcha now. Please try again."
         if model
           message = "Could not validate captcha now. Please try again."
           model.errors.add attribute, options[:message] || message

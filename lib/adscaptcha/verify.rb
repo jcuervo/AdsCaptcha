@@ -4,32 +4,50 @@ module Adscaptcha
     def verify_adscaptcha(options = {})
       validate_url = "http://#{Adscaptcha.configuration.ads_captcha_api}/Validate.aspx"
       private_key = options[:private_key] || Adscaptcha.configuration.private_key
-      captcha_id = options[:private_key] || Adscaptcha.configuration.captcha_id
+      captcha_id = options[:captcha_id] || Adscaptcha.configuration.captcha_id
+
+      model = options[:model]
+      attribute = options[:attribute] || :base
       
-      adscaptcha = nil
-      http = Net::HTTP
-      
-      Timeout::timeout(options[:timeout] || 3) do
-        adscaptcha = http.post_form(URI.parse(validate_url), {
-          "CaptchaId"     => captcha_id,
-          "PrivateKey"    => private_key,
-          "ChallengeCode" => params[:adscaptcha_challenge_field],
-          "UserResponse"  => params[:adscaptcha_response_field],
-          "RemoteAddress" => request.remote_ip
-        })
-      end
-      
-      answer, error = adscaptcha.body.split.map { |s| s.chomp }
-      unless answer == 'true'
-        flash[:adscaptcha_error] = error
-        if model
-          message = "Image verification response is incorrect, please try again."
-          model.errors.add attribute, options[:message] || message
+      begin
+        response = nil
+  
+        Timeout::timeout(options[:timeout] || 3) do
+          uri = URI(validate_url)
+          req = Net::HTTP::Post.new(uri.path)
+
+          req.set_form_data({
+            "CaptchaId"     => captcha_id,
+            "PrivateKey"    => private_key,
+            "ChallengeCode" => params[:adscaptcha_challenge_field],
+            "UserResponse"  => params[:adscaptcha_response_field],
+            "RemoteAddress" => request.remote_ip 
+          })
+
+          response = Net::HTTP.start(uri.hostname, uri.port) do |http|
+            http.request(req)
+          end
         end
-        return false
-      else
-        flash.delete(:adscaptcha_error)
-        return true
+      
+        unless response.body == 'true'
+          flash[:adscaptcha_error] = "Captcha error. Please try again."
+          if model
+            message = "Captcha error. Please try again."
+            model.errors.add attribute, options[:message] || message
+          end
+          return false
+        else
+          flash.delete(:adscaptcha_error)
+          return true
+        end
+      rescue Timeout::Error
+        if model
+          message = "Could not validate captcha now. Please try again."
+          model.errors.add attribute, options[:message] || message
+          return false
+        end
+      rescue Exception => e
+        raise AdscaptchaError, e.message, e.backtrace
       end
     end
   end

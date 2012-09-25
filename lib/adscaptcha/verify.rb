@@ -15,7 +15,7 @@ module Adscaptcha
           "PrivateKey"    => request.remote_ip,
           "ChallengeCode" => params[:adscaptcha_challenge_field],
           "UserResponse"  => params[:adscaptcha_response_field],
-          "RemoteAddress" => params[:remote_address] #$_SERVER["REMOTE_ADDR"]
+          "RemoteAddress" => request.env['REMOTE_ADDR']
         })
       end
       

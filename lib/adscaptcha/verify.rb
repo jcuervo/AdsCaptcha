@@ -2,7 +2,7 @@ require "uri"
 module Adscaptcha
   module Verify
     def verify_adscaptcha(options = {})
-      validate_url = "http://#{Recaptcha.configuration.ads_captcha_api}/Validate.aspx"
+      validate_url = "http://#{Adscaptcha.configuration.ads_captcha_api}/Validate.aspx"
       private_key = options[:private_key] || Adscaptcha.configuration.private_key
       captcha_id = options[:private_key] || Adscaptcha.configuration.captcha_id
       
@@ -11,11 +11,11 @@ module Adscaptcha
       
       Timeout::timeout(options[:timeout] || 3) do
         adscaptcha = http.post_form(URI.parse(validate_url), {
-          "CaptchaId"     => private_key,
-          "PrivateKey"    => request.remote_ip,
+          "CaptchaId"     => captcha_id,
+          "PrivateKey"    => private_key,
           "ChallengeCode" => params[:adscaptcha_challenge_field],
           "UserResponse"  => params[:adscaptcha_response_field],
-          "RemoteAddress" => request.env['REMOTE_ADDR']
+          "RemoteAddress" => request.remote_ip
         })
       end
       

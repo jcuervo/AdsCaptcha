@@ -1,3 +1,3 @@
 module Adscaptcha
-  VERSION = "0.0.2"
+  VERSION = "0.0.32"
 end
